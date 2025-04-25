@@ -139,7 +139,7 @@
             @endphp
 
             <div class="list-group m-b-0">
-            <h4 align="center">ยินดีต้อนรับ</h4>
+            <h4 align="center">Welcome ยินดีต้อนรับ</h4>
                 <span class="list-group-item bg-primary no-border text-center">หมวดหมู่</span>
                 @if(count($categories) > 0)
                     @foreach($categories as $category)
