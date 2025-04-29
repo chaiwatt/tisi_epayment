@@ -2,43 +2,48 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use HP;
+use File;
+use Mpdf\Mpdf;
+use Carbon\Carbon;
+use GuzzleHttp\Client; 
 use App\CertificateExport;
-use App\Models\Certify\ApplicantCB\CertiCBExport;
-use App\Models\Certify\ApplicantIB\CertiIBExport;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Mail\Lab\MailBoardAuditor;
+use App\Http\Controllers\Controller;
+use App\Models\Certificate\Tracking;
+use App\Models\Certify\BoardAuditor;
+use Illuminate\Support\Facades\Mail;
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Certify\Applicant\Notice;
+use App\Models\Certify\EpaymentBillTest;
+use App\Models\Law\Cases\LawCasesForm;  
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+ 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\Certify\Applicant\CertiLab;
+use App\Models\Certify\CertificateHistory;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Models\Certify\ApplicantIB\CertiIb;
-use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Certify\CertiSettingPayment;
-use App\Models\Certify\Applicant\CostAssessment;
-use App\Models\Certify\BoardAuditor;
-use App\Models\Certify\CertificateHistory;
-use App\Models\Certify\EpaymentBillTest;
-
-use App\Models\Certify\Applicant\Notice;
 use App\Models\Certify\Applicant\Assessment;
-use App\Models\Certify\Applicant\AssessmentGroup;
-use App\Models\Certify\Applicant\AssessmentGroupAuditor;
-use App\Models\Certify\ApplicantIB\CertiIBPayInOne;
- 
-use App\Models\Law\Cases\LawCasesForm;  
-use App\Mail\Lab\MailBoardAuditor;
-use Illuminate\Support\Facades\Mail;
-use HP;
-use Mpdf\Mpdf;
-use File;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\Certify\Applicant\CostAssessment;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use GuzzleHttp\Client; 
+use App\Models\Certify\Applicant\AssessmentGroup;
+use App\Models\Certify\ApplicantCB\CertiCBExport;
+use App\Models\Certify\ApplicantIB\CertiIBExport;
+use App\Models\Certify\ApplicantIB\CertiIBPayInOne;
+use App\Models\Certify\Applicant\AssessmentGroupAuditor;
+
 class CertifyController extends Controller
 {
      public function pmt1(Request $request){
+      
             $response = [];
              $str =  explode("-",$request->Ref1);
             //  dd($str);
@@ -77,8 +82,9 @@ class CertifyController extends Controller
                 $response['billNo']             = "64020900000163";
                 $response['CGDRef1']            = "6402090000016310";
                 $response['CGDRef2']            = "64041072";
-                $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-                $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+$response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+$response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
+
                 $response['allPaymentAmount']   = "36,000.00";
                 $response['amount_bill']        = "36,000.00";
                 $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -126,8 +132,9 @@ class CertifyController extends Controller
                 $response['billNo']             = "64020900000163";
                 $response['CGDRef1']            = "6402090000016310";
                 $response['CGDRef2']            = "64041072";
-                $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-                $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+$response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+$response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
+
                 $response['allPaymentAmount']   = "36,000.00";
                 $response['amount_bill']        = "36,000.00";
                 $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -174,8 +181,8 @@ class CertifyController extends Controller
                 $response['billNo']             = "64020900000163";
                 $response['CGDRef1']            = "6402090000016310";
                 $response['CGDRef2']            = "64041072";
-                $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-                $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+$response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+$response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
                 $response['allPaymentAmount']   = "36,000.00";
                 $response['amount_bill']        = "36,000.00";
                 $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -223,8 +230,8 @@ class CertifyController extends Controller
            $response['billNo']             = "64020900000163";
            $response['CGDRef1']            = "6402090000016310";
            $response['CGDRef2']            = "64041072";
-           $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-           $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+          $response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+      $response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');         
            $response['allPaymentAmount']   = "36,000.00";
            $response['amount_bill']        = "36,000.00";
            $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -274,8 +281,8 @@ class CertifyController extends Controller
            $response['billNo']             = "64020900000163";
            $response['CGDRef1']            = "6402090000016310";
            $response['CGDRef2']            = "64041072";
-           $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-           $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+$response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+$response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
            $response['allPaymentAmount']   = "36,000.00";
            $response['amount_bill']        = "36,000.00";
            $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -322,8 +329,8 @@ class CertifyController extends Controller
            $response['billNo']             = "64020900000163";
            $response['CGDRef1']            = "6402090000016310";
            $response['CGDRef2']            = "64041072";
-           $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
-           $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+$response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+$response['invoiceEndDate']   = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
            $response['allPaymentAmount']   = "36,000.00";
            $response['amount_bill']        = "36,000.00";
            $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
@@ -350,7 +357,69 @@ class CertifyController extends Controller
           return response()->json($response);
 
           
-         }else if($request->out == 'pdf'){
+          
+         }
+         else if(Str::contains($request->Ref1, 'SurLab') && $request->out == 'json')
+        {
+          
+          $tracking = Tracking::where('reference_refno',$app_no)->first();
+          $export_lab = CertificateExport::find($tracking->ref_id);
+
+          $response['pid']                = $pid;
+          $response['Ref1']               = $export_lab->reference_refno;
+          $response['returnCode']         = '000';
+          $response['appno']              = $export_lab->reference_refno;
+          $response['bus_name']           = $export_lab->org_name;
+          $response['address']            = $export_lab->address_no;
+          $response['allay']              = $export_lab->address_moo;
+          $response['village_no']         = $export_lab->address_soi;
+          $response['road']               = $export_lab->address_road;
+          $response['district_id']        = $export_lab->address_subdistrict ?? null;
+          $response['amphur_id']          = $export_lab->address_district ?? null;
+          $response['province_id']        = $export_lab->address_province ?? null;
+          $response['postcode']           = $export_lab->address_postcode;
+          $response['email']              = $export_lab->CertiLabTo->email ?? null;
+          $response['app_check']          = "30000";
+          $response['vatid']              = "0125542005151";
+          $response['Perpose']            =  null;
+          $response['AmountCert']         = "5000";
+          $response['billNo']             = "64020900000163";
+          $response['CGDRef1']            = "6402090000016310";
+          $response['CGDRef2']            = "64041072";
+            // $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
+            // $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+            // กำหนดวันเริ่มต้นเป็นปัจจุบัน
+            $response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+            // กำหนดวันสิ้นสุดโดยเพิ่ม 30 วัน
+            $response['invoiceEndDate'] = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
+          $response['allPaymentAmount']   = "36,000.00";
+          $response['amount_bill']        = "36,000.00";
+          $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
+          $response['barcodeString']      = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['barcodeSub']         = "|099400015951015 6402090000016310 64041072 3600000";
+          $response['QRCodeString']       = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['status']             = "0";
+          $response['auditor']            = "คณะ";
+
+          $epay =  EpaymentBillTest::where('Ref1',$request->Ref1)->first();
+          if(is_null($epay)){
+            $epay = new EpaymentBillTest;
+          }
+          $epay->Ref1               =   $request->Ref1;
+          $epay->CGDRef1            =  '6402090000016310';
+          $epay->Status             =  0;
+          $epay->PaymentDate        =  date('Y-m-d H:i:s'); 
+          $epay->InvoiceCode        = '0-0000000000000000000000'; 
+          $epay->ReceiptCode        =  '123456';
+          $epay->ReceiptCreateDate  = date('Y-m-d H:i:s'); 
+          $epay->Amount             =  "36000.00";
+          $epay->save();
+
+          return response()->json($response);
+        }
+         
+         
+         else if($request->out == 'pdf'){
                 $arrContextOptions=array(
                                 "ssl"=>array(
                                 "verify_peer"=>false,
@@ -371,8 +440,11 @@ class CertifyController extends Controller
        $response = [];
 
        if(!empty($request->ref1)){
+          EpaymentBillTest::where('Ref1',$request->ref1)->update([
+            'Status' => 1
+          ]);
              $epays =  EpaymentBillTest::where('Ref1',$request->ref1)->get();
-       } else      if(!empty($request->paydate)){
+       } else if(!empty($request->paydate)){
              $epays =  EpaymentBillTest::whereDate('PaymentDate',$request->paydate)->where('Status',1)->get();
       } else{
             $epays =  EpaymentBillTest::whereDate('PaymentDate',date('Y-m-d'))->where('Status',1)->get();
