@@ -46,7 +46,7 @@ class CertifyController extends Controller
       
             $response = [];
              $str =  explode("-",$request->Ref1);
-             dd($str);
+
             if(count($str) == 4){
               $app_no =  $str['0'].'-'.$str['1'].'-'.$str['2'];
             }else{
